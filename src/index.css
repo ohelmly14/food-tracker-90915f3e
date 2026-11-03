@@ -1,0 +1,28 @@
+:root{--bg:#f6f7f4;--fg:#1d231c;--mut:#6b7468;--card:#fff;--acc:#2f7d4f;--warn:#b5522b;--line:#e2e5df;font-family:system-ui,-apple-system,sans-serif;color:var(--fg);background:var(--bg)}
+@media (prefers-color-scheme:dark){:root{--bg:#141713;--fg:#e8ebe6;--mut:#9aa396;--card:#1e221d;--line:#2d322b;--acc:#5bbd7f}}
+*{box-sizing:border-box}body{margin:0}
+.app{max-width:760px;margin:0 auto;padding:0 12px calc(80px + env(safe-area-inset-bottom))}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;overflow-x:auto;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav a{flex:1;text-align:center;padding:14px 8px;color:var(--mut);text-decoration:none;font-size:13px;white-space:nowrap}nav a.on{color:var(--acc);font-weight:600}
+@media(min-width:900px){nav{position:sticky;top:0;bottom:auto;border:0;border-bottom:1px solid var(--line);max-width:760px;margin:0 auto}.app{padding-bottom:40px}}
+main{padding-top:calc(8px + env(safe-area-inset-top))}
+h2{margin:12px 0}h3{margin:18px 0 6px}h4{margin:12px 0 4px;text-transform:capitalize}
+input,select,textarea,button,.button{font:inherit;font-size:16px;padding:9px 10px;border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--fg);min-width:0}
+textarea{width:100%}label{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--mut);flex:1}label.inline{flex-direction:row;align-items:center;gap:6px;flex:none;color:var(--fg)}
+button,.button{background:var(--acc);color:#fff;border:0;cursor:pointer;white-space:nowrap}button.ghost,.button.ghost{background:transparent;color:var(--acc);border:1px solid var(--line)}button.danger{background:var(--warn)}button.small{padding:5px 9px;font-size:13px}
+.row{display:flex;gap:8px;align-items:center;margin:6px 0}.wrap{flex-wrap:wrap}.grow{flex:1;min-width:0}.center{text-align:center}.col{flex-direction:column;align-items:stretch!important}
+.list{list-style:none;padding:0;margin:4px 0}.list li{display:flex;gap:8px;align-items:center;padding:10px;background:var(--card);border:1px solid var(--line);border-radius:10px;margin:5px 0;cursor:pointer}
+.empty{color:var(--mut);justify-content:center}.hint{color:var(--mut);font-size:13px}.warn{color:var(--warn);font-size:14px}.macros{font-size:12.5px;color:var(--mut)}.big .macros{font-size:15px;color:var(--fg)}
+.tag{background:var(--acc);color:#fff;border-radius:5px;padding:0 5px;margin-left:5px}.done{text-decoration:line-through;color:var(--mut)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;margin:8px 0}
+.tabs{display:flex;gap:6px;margin:8px 0}.tabs button{background:transparent;color:var(--mut);border:1px solid var(--line)}.tabs button.on{background:var(--acc);color:#fff}
+.add{width:100%;font-size:20px;padding:16px;margin:12px 0;border-radius:14px}
+.bars{display:grid;gap:8px}.barlabel{display:flex;justify-content:space-between;font-size:13px;text-transform:capitalize}.track{height:10px;background:var(--line);border-radius:6px;overflow:hidden}.fill{height:100%;background:var(--acc)}.fill.over{background:var(--warn)}
+.modal{position:fixed;inset:0;background:#0007;display:flex;align-items:flex-end;justify-content:center;z-index:10}.sheet{background:var(--bg);width:100%;max-width:640px;max-height:90vh;overflow:auto;padding:16px 16px calc(16px + env(safe-area-inset-bottom));border-radius:16px 16px 0 0}
+@media(min-width:700px){.modal{align-items:center}.sheet{border-radius:16px}}
+.form{display:flex;flex-direction:column;gap:8px}.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}@media(max-width:420px){.grid5{grid-template-columns:repeat(3,1fr)}}
+.chips{font-size:13px;color:var(--mut)}.chip{background:transparent;color:var(--acc);border:1px solid var(--line);padding:3px 8px;margin:2px;font-size:13px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:90px;background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:20px;z-index:20}
+.scanvideo{width:100%;border-radius:10px;background:#000;max-height:50vh}.w80{width:80px}.w130{width:135px}
+.chart{width:100%;height:auto}.cline{stroke:var(--acc);stroke-width:1.5}.dot{fill:var(--acc)}.tline{stroke:var(--warn);stroke-dasharray:4 3;stroke-width:1}
+.drag{outline:3px dashed var(--acc)}code{font-size:12px}
