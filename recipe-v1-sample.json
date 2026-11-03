@@ -1,0 +1,77 @@
+{
+  "schema": "recipe/v1",
+  "source": "cook-bot",
+  "external_id": "chili-2026-11-02",
+  "name": "Turkey chili",
+  "portions": 6,
+  "cooked_weight_g": 1800,
+  "ingredients": [
+    {
+      "text": "500 g ground turkey",
+      "name": "Ground turkey, 93% lean",
+      "grams": 500,
+      "barcode": null,
+      "nutrition_per_100g": {
+        "calories": 150,
+        "protein": 21,
+        "carbs": 0,
+        "fat": 7,
+        "fiber": 0
+      }
+    },
+    {
+      "text": "2 cans kidney beans, drained",
+      "name": "Kidney beans, canned, drained",
+      "grams": 480,
+      "barcode": null,
+      "nutrition_per_100g": {
+        "calories": 127,
+        "protein": 8.7,
+        "carbs": 22.8,
+        "fat": 0.5,
+        "fiber": 6.4
+      }
+    },
+    {
+      "text": "1 can crushed tomatoes",
+      "name": "Crushed tomatoes, canned",
+      "grams": 800,
+      "barcode": null,
+      "nutrition_per_100g": {
+        "calories": 32,
+        "protein": 1.6,
+        "carbs": 7,
+        "fat": 0.3,
+        "fiber": 1.9
+      }
+    },
+    {
+      "text": "1 onion",
+      "name": "Onion",
+      "grams": 150,
+      "barcode": null,
+      "nutrition_per_100g": {
+        "calories": 40,
+        "protein": 1.1,
+        "carbs": 9.3,
+        "fat": 0.1,
+        "fiber": 1.7
+      }
+    }
+  ],
+  "nutrition_per_portion": {
+    "calories": 420,
+    "protein": 38,
+    "carbs": 35,
+    "fat": 12,
+    "fiber": 9
+  },
+  "instructions": [
+    "Brown the turkey with the onion.",
+    "Add beans and tomatoes, simmer 30 minutes."
+  ],
+  "tags": [
+    "dinner"
+  ],
+  "image_url": null
+}
