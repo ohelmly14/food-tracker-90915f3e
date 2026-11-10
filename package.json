@@ -12,7 +12,6 @@
     "deploy": "BASE_PATH=/food-tracker-90915f3e/ npm run build && touch dist/.nojekyll && cd dist && git init -q -b gh-pages && git -c user.name=Olivia -c user.email=ohelmly14@users.noreply.github.com commit -qm deploy --allow-empty && git add -A && git -c user.name=Olivia -c user.email=ohelmly14@users.noreply.github.com commit -qm deploy && git push -qf https://github.com/ohelmly14/food-tracker-90915f3e.git gh-pages && rm -rf .git"
   },
   "dependencies": {
-    "@zxing/browser": "^0.2.1",
     "@zxing/library": "^0.23.0",
     "dexie": "^4.4.7",
     "dexie-react-hooks": "^4.4.0",

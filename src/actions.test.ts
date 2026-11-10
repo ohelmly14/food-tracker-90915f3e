@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { db } from './db';
-import { addFood, logFood, saveRecipe, importRecipes, exportAll, restoreAll, wipeAll, copyDay } from './actions';
+import { addFood, findByBarcode, logFood, saveRecipe, importRecipes, exportAll, restoreAll, wipeAll, copyDay } from './actions';
 import { SAMPLE_RECIPE } from './lib/importer';
 import { ymd, addDays } from './lib/nutrition';
 
@@ -36,6 +36,12 @@ describe('db actions (fake IndexedDB)', () => {
     expect(all).toHaveLength(1); expect(all[0].portions).toBe(4); expect(all[0].status).toBe('inbox');
     expect(await db.foods.filter((f) => !!f.importedFlag).count()).toBe(4);
     expect((await db.foods.get(all[0].foodId!))!.hidden).toBe(1);
+  });
+  it('finds a barcode saved as EAN-13 when the scan is UPC-A', async () => {
+    const id = await addFood({ name: 'Cola', source: 'barcode', barcode: '0036000291452', calories: 42, protein: 0, carbs: 10, fat: 0, fiber: 0 });
+    expect((await findByBarcode('036000291452'))?.id).toBe(id);
+    expect((await findByBarcode('0036000291452'))?.id).toBe(id);
+    expect(await findByBarcode('0000000000000')).toBeUndefined();
   });
   it('copy yesterday, export and restore', async () => {
     const id = await addFood({ name: 'X', source: 'mine', calories: 100, protein: 0, carbs: 0, fat: 0, fiber: 0 });

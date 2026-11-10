@@ -3,6 +3,7 @@ import type { Food, Recipe, Entry, Macros, Serving } from './lib/types';
 import { scale, recipePer100, ymd, activeTarget } from './lib/nutrition';
 import { planImport, type RecipePlan, type RecipeFail } from './lib/importer';
 import { proposeTargets } from './lib/suggest';
+import { barcodeVariants } from './lib/barcode';
 import type { OffFood } from './off';
 
 export async function addFood(f: Omit<Food, 'id' | 'createdAt'>, servings: { label: string; grams: number }[] = []): Promise<number> {
@@ -11,6 +12,14 @@ export async function addFood(f: Omit<Food, 'id' | 'createdAt'>, servings: { lab
   for (const [i, s] of servings.entries()) { const sid = await db.servings.add({ foodId: id, label: s.label, grams: s.grams, isDefault: i === 0 }); if (i === 0) def = sid; }
   if (def) await db.foods.update(id, { defaultServingId: def });
   return id;
+}
+/** Match a scanned code against foods saved as UPC-A or as EAN-13 with a leading zero. */
+export async function findByBarcode(code: string): Promise<Food | undefined> {
+  for (const c of barcodeVariants(code)) {
+    const hit = await db.foods.where('barcode').equals(c).first();
+    if (hit) return hit;
+  }
+  return undefined;
 }
 export async function saveOffFood(o: OffFood, source: 'barcode' | 'search'): Promise<number> {
   if (o.food.barcode) { const ex = await db.foods.where('barcode').equals(o.food.barcode).first(); if (ex) return ex.id!; }

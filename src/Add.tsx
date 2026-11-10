@@ -6,8 +6,9 @@ import { MACRO_KEYS } from './lib/types';
 import { parseShortcut, normName } from './lib/parse';
 import { recentFoodIds, frequentFoodIds, portionHabit } from './lib/portions';
 import { scale } from './lib/nutrition';
+import { lookupNotice, normalizeBarcode } from './lib/barcode';
 import { offByBarcode, offSearch, type OffFood } from './off';
-import { addFood, logFood, saveOffFood } from './actions';
+import { addFood, findByBarcode, logFood, saveOffFood } from './actions';
 import { Scanner } from './Scanner';
 
 export const MacroLine = ({ m }: { m: Macros }) => (
@@ -30,7 +31,8 @@ export function FoodPicker({ onPick, quick, allowRecipes = true }: { onPick: (fo
   const [off, setOff] = useState<OffFood[] | null>(null);
   const [offState, setOffState] = useState('');
   const [scan, setScan] = useState(false);
-  const [manual, setManual] = useState<Partial<Food> | null>(null);
+  const [draft, setDraft] = useState<{ initial: Partial<Food>; notice?: string } | null>(null);
+  const [busy, setBusy] = useState('');
   const [toast, setToast] = useState('');
   const foods = useLiveQuery(() => db.foods.toArray(), []) || [];
   const entries = useLiveQuery(() => db.entries.orderBy('datetime').reverse().limit(500).toArray(), []) || [];
@@ -54,13 +56,21 @@ export function FoodPicker({ onPick, quick, allowRecipes = true }: { onPick: (fo
   const flash = (s: string) => { setToast(s); setTimeout(() => setToast(''), 1800); };
   async function onCode(code: string) {
     setScan(false);
-    const localMatch = await db.foods.where('barcode').equals(code).first();
-    if (localMatch) return onPick(localMatch.id!);
-    flash('Looking up ' + code + '…');
-    const r = await offByBarcode(code);
-    if (r) return onPick(await saveOffFood(r, 'barcode'));
-    flash(navigator.onLine ? 'Not found; add it once and it is saved.' : 'Offline; add it manually.');
-    setManual({ barcode: code, source: 'barcode' });
+    const digits = code.replace(/\D/g, '');
+    const canonical = normalizeBarcode(code) ?? (digits || code.trim());
+    if (!canonical) return;
+    const localMatch = await findByBarcode(canonical);
+    if (localMatch?.id) return onPick(localMatch.id);
+    setBusy('Looking up ' + canonical + '…');
+    const hit = await offByBarcode(canonical);
+    setBusy('');
+    if (hit.kind === 'found') return onPick(await saveOffFood(hit.food, 'barcode'));
+    const initial: Partial<Food> = { barcode: hit.kind === 'incomplete' && hit.barcode ? hit.barcode : canonical, source: 'barcode' };
+    if (hit.kind === 'incomplete') {
+      if (hit.name) initial.name = hit.name;
+      if (hit.brand) initial.brand = hit.brand;
+    }
+    setDraft({ initial, notice: lookupNotice(hit.kind, canonical, hit.kind === 'incomplete' ? hit.name : undefined) });
   }
   return (
     <div>
@@ -78,7 +88,7 @@ export function FoodPicker({ onPick, quick, allowRecipes = true }: { onPick: (fo
           </li>
         ))}
         {!list.length && !query && <li className="empty">Nothing here yet. Search, scan, or add a food.</li>}
-        {query && <li className="empty" onClick={() => setManual({ name: query })}>+ Create “{query}” as my food</li>}
+        {query && <li className="empty" onClick={() => setDraft({ initial: { name: query } })}>+ Create “{query}” as my food</li>}
       </ul>
       {query && <>
         <h4>Open Food Facts</h4>{offState && <p className="hint">{offState}</p>}
@@ -87,14 +97,15 @@ export function FoodPicker({ onPick, quick, allowRecipes = true }: { onPick: (fo
             <div className="grow"><b>{o.food.name}</b>{o.food.brand && <small> · {o.food.brand}</small>}<br /><small><MacroLine m={o.food} /> /100g</small></div>
           </li>))}</ul>
       </>}
+      {busy && <p className="hint" role="status">{busy}</p>}
       {scan && <Scanner onResult={onCode} onClose={() => setScan(false)} />}
-      {manual && <div className="modal"><div className="sheet"><FoodForm initial={manual} onDone={(id) => { setManual(null); if (id) onPick(id); }} /></div></div>}
+      {draft && <div className="modal"><div className="sheet"><FoodForm initial={draft.initial} notice={draft.notice} onDone={(id) => { setDraft(null); if (id) onPick(id); }} /></div></div>}
       {toast && <div className="toast">{toast}</div>}
     </div>
   );
 }
 
-export function FoodForm({ initial, onDone }: { initial: Partial<Food>; onDone: (id?: number) => void }) {
+export function FoodForm({ initial, onDone, notice }: { initial: Partial<Food>; onDone: (id?: number) => void; notice?: string }) {
   const [f, setF] = useState<Partial<Food>>({ source: 'mine', calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0, ...initial });
   const existingServ = useLiveQuery(() => (initial.id ? db.servings.where('foodId').equals(initial.id).toArray() : Promise.resolve([] as { id?: number; label: string; grams: number }[])), [initial.id]);
   const [servs, setServs] = useState<{ id?: number; label: string; grams: number }[] | null>(null);
@@ -115,7 +126,8 @@ export function FoodForm({ initial, onDone }: { initial: Partial<Food>; onDone: 
   }
   return (
     <div className="form">
-      <h3>{initial.id ? 'Edit food' : 'New food'}</h3>
+      <h3>{initial.id ? 'Edit food' : notice ? 'Save this barcode' : 'New food'}</h3>
+      {notice && <p className="card">{notice}</p>}
       <label>Name<input value={f.name || ''} onChange={(e) => set('name', e.target.value)} /></label>
       <div className="row"><label>Brand<input value={f.brand || ''} onChange={(e) => set('brand', e.target.value)} /></label>
         <label>Barcode<input value={f.barcode || ''} onChange={(e) => set('barcode', e.target.value)} /></label></div>
